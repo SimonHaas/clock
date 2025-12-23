@@ -1,6 +1,16 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  box-sizing: border-box;
+}
+
 body{
   background: #39BF5F;
-  margin: 100px;
+  /* Use padding (not margin) so the clock can fill the viewport without causing overflow */
+  padding: 100px;
 }
 svg{
   display: block;
@@ -8,24 +18,29 @@ svg{
   /* Make the clock responsive: fit viewport on small screens but cap at 600px */
   width: min(90vw, 600px);
   height: auto;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
-/* Reduce page margins and let the SVG take more width on narrow viewports */
+/* Reduce page padding and let the SVG take more width on narrow viewports */
 @media (max-width: 600px) {
+  /* Small phones/tablets: very small padding so clock nearly reaches edges */
   body {
-    margin: 18px;
+    padding: 8px;
   }
   svg {
-    width: calc(100vw - 36px);
+    width: 100%;
+    max-width: none;
   }
 }
 
 @media (max-width: 380px) {
-  /* For very small phones, use almost full width */
-  svg {
-    width: 95vw;
-  }
+  /* Very small phones: minimal padding, clock almost touches screen edges */
   body {
-    margin: 10px;
+    padding: 4px;
+  }
+  svg {
+    width: 100%;
+    max-width: none;
   }
 }
