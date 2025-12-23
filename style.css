@@ -5,4 +5,27 @@ body{
 svg{
   display: block;
   margin: auto;
+  /* Make the clock responsive: fit viewport on small screens but cap at 600px */
+  width: min(90vw, 600px);
+  height: auto;
+}
+
+/* Reduce page margins and let the SVG take more width on narrow viewports */
+@media (max-width: 600px) {
+  body {
+    margin: 18px;
+  }
+  svg {
+    width: calc(100vw - 36px);
+  }
+}
+
+@media (max-width: 380px) {
+  /* For very small phones, use almost full width */
+  svg {
+    width: 95vw;
+  }
+  body {
+    margin: 10px;
+  }
 }
