@@ -1,5 +1,14 @@
 var s = Snap(document.getElementById("clock"));
 
+// Time sync variables
+// `serverOffset` = serverTime - clientNow; add this to Date.now() to get synced server time
+var serverOffset = 0;
+var timeEndpoint = (function(){
+  // try same origin first, fallback to localhost:3000
+  var base = location.origin && location.origin !== 'null' ? location.origin : 'http://localhost:3000';
+  return base + '/time';
+})();
+
 var seconds = s.select("#seconds"),
     minutes = s.select("#minutes"),
     hours   = s.select("#hours"),
@@ -44,8 +53,13 @@ opacity: 0.5,
     filter: s.filter(Snap.filter.blur(0, 8)+Snap.filter.brightness(0)),
 })
 
+function now() {
+    // Return a Date adjusted by serverOffset (ms)
+    return new Date(Date.now() + serverOffset);
+}
+
 function update() {
-    var time = new Date();
+    var time = now();
     setHours(time);
     setMinutes(time);
     setSeconds(time);
@@ -118,4 +132,31 @@ function setSeconds(t) {
     easing
     );
 }
-setInterval(update, 1000);
+// Start ticking after we attempt to fetch server time. If fetch fails, fallback to device time (serverOffset = 0).
+function initTimeSyncAndStart() {
+    // Try to fetch server time
+    fetch(timeEndpoint, {cache: 'no-store'})
+    .then(function(res){
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.json();
+    })
+    .then(function(data){
+        if (data && data.serverTime) {
+            // compute offset in ms
+            serverOffset = data.serverTime - Date.now();
+            console.log('Time synced to server. Offset (ms):', serverOffset);
+        } else {
+            console.warn('Server returned unexpected payload, falling back to device time.');
+        }
+    })
+    .catch(function(err){
+        console.warn('Could not fetch server time, falling back to device time:', err.message);
+    })
+    .finally(function(){
+        // Trigger an immediate update and then set interval
+        update();
+        setInterval(update, 1000);
+    });
+}
+
+initTimeSyncAndStart();
