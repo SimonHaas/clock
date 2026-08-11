@@ -1,3 +1,3 @@
 FROM nginx
 
-COPY ./src /usr/share/nginx/html/clock
+COPY ./docs /usr/share/nginx/html/clock
